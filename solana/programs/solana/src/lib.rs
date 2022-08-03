@@ -37,7 +37,7 @@ impl std::fmt::Display for Decimal {
 }
 
 #[program]
-pub mod chainlink_solana_feeds {
+pub mod solana {
     use super::*;
     pub fn execute(ctx: Context<Execute>) -> ProgramResult  {
         // Get the rounded feed value

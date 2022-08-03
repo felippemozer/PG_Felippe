@@ -8,74 +8,85 @@
 
 # Chainlink Solana Data Feeds
 
-The Chainlink Solana Data Feeds is an [Anchor](https://project-serum.github.io/anchor/getting-started/introduction.html) based program and client that shows developers how to use and interact with [Chainlink Price Feeds on Solana](https://docs.chain.link/solana/). It is configured to run on the [Devnet cluster](https://docs.solana.com/clusters#devnet), and is comprised of an on-chain program written in Rust, and an off-chain client written in JavaScript. The program takes parameters and account information from the off-chain client, retrieves the latest price data from the specified Chainlink Price Feed on Devnet, then writes the data out to the specified account, which can then be read by the off-chain client.
+Chainlink Solana Data Feeds é um programa para realizar a verificação de preços de ativos na [Chainlink Data Feeds](https://data.chain.link/). Está configurado na rede [Devnet](https://docs.solana.com/clusters#devnet), e é compreendido de um contrato _on-chain_ escrito em [Anchor](https://docs.rs/anchor-lang/latest/anchor_lang/), um _framework Rust_, além de um cliente _off-chain_ escrito em _Javascript_. O contrato requere informações da conta e do _feed_ desejado através do cliente _off-chain_, busca os dados específicos do _feed_ requerido _on-chain_, então escreve o resultado na conta do usuário do contrato, no qual pode ser lido pelo cliente _off-chain_.
 
-## Running the example on Devnet
+## Executando na Devnet
 
-### Requirements
+### Requerimentos
 
-- [NodeJS 12](https://nodejs.org/en/download/) or higher
+- [NodeJS 12](https://nodejs.org/en/download/) ou superior
 - [Rust](https://www.rust-lang.org/tools/install)
 - [Solana CLI](https://github.com/solana-labs/solana/releases)
-- A C compiler such as the one included in [GCC](https://gcc.gnu.org/install/).
+- Um compilador C, como [GCC](https://gcc.gnu.org/install/), por exemplo.
 
-### Building and Deploying the Consumer Program
+**OBS**: Todos os testes foram realizados em ambiente Linux (Ubuntu 22.04, Xubuntu 20.04). Não há garantias de funcionamento do programa em outros sistemas operacionais.
 
-First, ensure that you're in the `solana` directory in this repository
+### Fazendo o Build e Deploy do Contrato
+
+Primeiro, garanta que está no diretório `solana` neste repositório. Caso contrário, acesse-o, pelo comando:
 
 ```
-cd ./solana
+cd solana
 ```
+---
 
-Next step is to install all of the required dependencies:
+Depois, instale as dependências necessárias através do comando:
 
 ```
 npm install
 ```
+---
 
-**Note for [Apple M1](https://en.wikipedia.org/wiki/Apple_M1) chipsets**: You will need to perform an extra step to get the Anchor framework installed manually from source, as the NPM package only support x86_64 chipsets currently, please run the following command to install it manually:
-
-```
-cargo install --git https://github.com/project-serum/anchor --tag v0.24.2 anchor-cli --locked
-```
-
-Next, generate a new wallet:
+Após a instalação das dependências, crie uma nova carteira (se desejado) para realizar os testes, pelo comando:
 
 ```
 solana-keygen new -o id.json
 ```
 
-You should see the public key in the terminal output. Alternatively, you can find the public key with the following CLI command:
+Se quiser utilizar uma chave já armazenada, utilize este comando:
+
+```
+touch id.json
+cp $(solana-keygen pubkey) id.json
+``` 
+
+Se preferir, pode copiar a chave manualmente, consultando `solana-keygen pubkey`, copiando-a e colando no arquivo `id.json`.
+
+Para checar se a chave pública foi armazenada corretamente no arquivo `id.json`, execute o seguinte comando:
 
 ```
 solana-keygen pubkey id.json
 ```
+---
 
-Next, airdrop some SOL tokens into your new account. We will need to call this twice, because the Devnet faucet is limited to 2 SOL, and we need approximately 4 SOL. Be sure to replace both instances of <RECIPIENT_ACCOUNT_ADDRESS> with your wallet's public key from the previous step:
+O próximo passo é adicionar tokens SOL na conta. Como a rede _Devnet_ é limitada em até 2 SOL de adição por pedido de _airdrop_, vamos adicionar 4 SOL como garantia que teremos SOL suficiente para realizar as operações necessárias (ou seja, realizar 2 _airdrops_). Isso será realizado através do comando:
 
 ```
 solana airdrop 2 $(solana-keygen pubkey ./id.json) --url https://api.devnet.solana.com && solana airdrop 2 $(solana-keygen pubkey ./id.json) --url https://api.devnet.solana.com
 ```
 
-Next, build the program:
+Se necessário, realize mais _airdrops_ para realizar uma bateria de testes. Para um _build_ e _deploy_, até 4 SOL serão suficientes.
+---
+
+Agora, vamos iniciar o programa. Primeiro, fazemos o _build_, através do comando:
 
 ```
 anchor build
 ```
 
-The build process generates the keypair for your program's account. Before you deploy your program, you must add this public key to the lib.rs file. To do this, you need to get the keypair from the ./target/deploy/chainlink_solana_demo-keypair.json file that Anchor generated:
+O processo de _build_ gera o par de chaves da conta do seu contrato. Antes de fazer o _deploy_ do prgrama, é necessário adicionar a chave pública ao arquivo `lib.rs`. Para fazer isso, será necessário buscar o par de chaves em `./target/deploy/solana-keypair.json` gerado pela _build_ do _Anchor_:
 
 ```
-solana address -k ./target/deploy/chainlink_solana_demo-keypair.json
+solana address -k ./target/deploy/solana-keypair.json
 ```
 
-The next step is to edit the [lib.rs](./programs/chainlink/src/lib.rs) file and replace the keypair in the declare_id!() definition with the value you obtained from the previous step:
+Agora é necessário editar o arquivo `lib.rs` e trocar a chave declarada na definição de `declare_id!()` com o valor obtido no passo anterior:
 
 ```
-declare_id!("JC16qi56dgcLoaTVe4BvnCoDL6FhH5NtahA7jmWZFdqm");
+declare_id!("<CHAVE_DO_PASSO_ANTERIOR>");
 ```
 
-Finally, because you updated the source code with the generated program ID, you need to rebuild the program again, and then it can be deployed to devnet
+Como o código fonte foi atualizado com o novo ID do contrato gerado, você precisa realizar _build_ do contrato novamente, e posteriormente é possível realizar o _deploy_ na _Devnet_:
 
 ```
 anchor build
@@ -87,8 +98,8 @@ Once you have successfully deployed the program, the terminal output will specif
 ```
 Deploying workspace: https://api.devnet.solana.com
 Upgrade authority: ./id.json
-Deploying program "chainlink_solana_demo"...
-Program path: ./target/deploy/chainlink_solana_demo.so...
+Deploying program "solana"...
+Program path: ./target/deploy/solana.so...
 Program Id: JC16qi56dgcLoaTVe4BvnCoDL6FhH5NtahA7jmWZFdqm
 ```
 
