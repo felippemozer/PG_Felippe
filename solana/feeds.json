@@ -1,0 +1,10 @@
+{
+    "feeds": {
+        "BTC/USD": "CzZQBrJCLqjXRfMjRN3fhbxur2QYHUzkpaRwkWsiPqbz",
+        "ETH/USD": "2ypeVyYnZaW2TNYXXTaZq9YhYvnqcjCiifW1C6n8b7Go",
+        "LINK/USD": "6N2eCQv8hBkyZjSzN1pe5QtznZL9bGn6TZzcFhaYSLTs",
+        "SOL/USD": "HgTtcbcmp5BeThax5AU8vg4VwK79qAvAKKFMs8txMLW6",
+        "USDC/USD": "4NmRgDfAZrfBHQBuzstMP5Bu1pgBzVn8u1djSvNrNkrN",
+        "USDT/USD": "EkTcZ3StgQkahMtDBuREiaowjNUyeGnEDHnMbWgMGUJQ"
+    }
+}

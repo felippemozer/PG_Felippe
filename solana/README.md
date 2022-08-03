@@ -1,11 +1,3 @@
-<br/>
-<p align="center">
-<a href="https://chain.link" target="_blank">
-<img src="./app/images/solana_logo.png" width="225" alt="Chainlink Solana logo">
-</a>
-</p>
-<br/>
-
 # Chainlink Solana Data Feeds
 
 Chainlink Solana Data Feeds é um programa para realizar a verificação de preços de ativos na [Chainlink Data Feeds](https://data.chain.link/). Está configurado na rede [Devnet](https://docs.solana.com/clusters#devnet), e é compreendido de um contrato _on-chain_ escrito em [Anchor](https://docs.rs/anchor-lang/latest/anchor_lang/), um _framework Rust_, além de um cliente _off-chain_ escrito em _Javascript_. O contrato requere informações da conta e do _feed_ desejado através do cliente _off-chain_, busca os dados específicos do _feed_ requerido _on-chain_, então escreve o resultado na conta do usuário do contrato, no qual pode ser lido pelo cliente _off-chain_.
@@ -66,6 +58,7 @@ solana airdrop 2 $(solana-keygen pubkey ./id.json) --url https://api.devnet.sola
 ```
 
 Se necessário, realize mais _airdrops_ para realizar uma bateria de testes. Para um _build_ e _deploy_, até 4 SOL serão suficientes.
+
 ---
 
 Agora, vamos iniciar o programa. Primeiro, fazemos o _build_, através do comando:

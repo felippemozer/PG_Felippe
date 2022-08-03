@@ -1,3 +1,6 @@
+// Retrieving feeds data
+const data = require('./feeds.json');
+
 // Parse arguments
 // --program - [Required] The account address for your deployed program.
 // --feed - The account address for the Chainlink data feed to retrieve
@@ -15,7 +18,8 @@ const DIVISOR = 100000000;
 // Data feed account address
 // Default is SOL / USD
 const DEFAULT_FEED = "HgTtcbcmp5BeThax5AU8vg4VwK79qAvAKKFMs8txMLW6";
-const CHAINLINK_FEED = args['feed'] || DEFAULT_FEED;
+const FEED_HASH = data.feeds[args['feed']];
+const CHAINLINK_FEED = FEED_HASH || DEFAULT_FEED;
 
 const opts = {
   "commitment": "confirmed"
@@ -24,7 +28,7 @@ const opts = {
 async function main() {
   // Read the generated IDL.
   const idl = JSON.parse(
-    require("fs").readFileSync("./target/idl/chainlink_solana_feeds.json", "utf8")
+    require("fs").readFileSync("./target/idl/solana.json", "utf8")
   );
 
   // Address of the deployed program.
