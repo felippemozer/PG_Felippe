@@ -1,0 +1,14 @@
+{
+    "data": {
+        "rinkeby": {
+            "hashes": {
+                "BTC/ETH": "0x2431452A0010a43878bF198e170F6319Af6d27F4",
+                "BTC/USD": "0xECe365B379E1dD183B20fc5f022230C044d51404",
+                "ETH/USD": "0x8A753747A1Fa494EC906cE90E9f37563A8AF630e",
+                "EUR/USD": "0x78F9e60608bF48a1155b4B2A5e31F32318a1d85F",
+                "LINK/USD": "0xd8bD0a1cB028a31AA859A21A3758685a95dE4623",
+                "USDC/USD": "0xa24de01df22b63d23Ebc1882a5E3d4ec0d907bFB"
+            }
+        }
+    }
+}
