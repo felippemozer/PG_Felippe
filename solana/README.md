@@ -86,32 +86,32 @@ anchor build
 anchor deploy --provider.cluster devnet
 ```
 
-Once you have successfully deployed the program, the terminal output will specify the program ID of the program, it should match the value you inserted into the lib.rs file and the Anchor.toml file. Once again, take note of this Program ID, as it will be required when executing the client:
+Uma vez que o _deploy_ do contrato ocorreu com sucesso, a saída do terminal vai especificar o ID do programa, de modo que deve ser igual ao valor inserido no arquivo `lib.rs` e no arquivo `Anchor.toml`. Mais uma vez, anote este ID, uma vez que será necessário na chamada de execução do cliente:
 
 ```
 Deploying workspace: https://api.devnet.solana.com
 Upgrade authority: ./id.json
 Deploying program "solana"...
 Program path: ./target/deploy/solana.so...
-Program Id: JC16qi56dgcLoaTVe4BvnCoDL6FhH5NtahA7jmWZFdqm
+Program Id: <ID_DO_PROGRAMA>
 ```
 
-### Running the Client
+### Executando o Cliente
 
-The first step is to set the Anchor [environment variables](https://www.twilio.com/blog/2017/01/how-to-set-environment-variables.html). These are required by the Anchor framework to determine which provider to use and which wallet to use for interacting with the deployed program:
+O primeiro passo é **setar** as variáveis de ambiente do _Anchor_. Elas são requeridas pelo _framework_ para determinar o provedor a ser usado e qual a carteira vai ser utilizada para interagir com o contrato lançado:
 
 ```
 export ANCHOR_PROVIDER_URL='https://api.devnet.solana.com'
 export ANCHOR_WALLET='./id.json'
 ```
 
-Now you are ready to run the JavaScript client. Be sure to pass the program ID obtained from the previous steps by using the `--program` flag pointing to the JSON file containing the account that owns the program, as well as the Chainlink data feed address that you want to query. This can be taken from the [Chainlink Solana Data Feeds page](https://docs.chain.link/docs/solana/data-feeds-solana/), and the value will be defaulted to the Devnet SOL/USD feed address if you don’t specify a value. In this example, we specified the ETH/USD feed:
+Agora o cliente JS poderá ser executado. **IMPORTANTE** Não esquecer de passar o ID do contrato obtido nos passos anteriores para ser utilizado no cliente através da _flag_ `--program` apontando para o arquivo JSON contendo a chave da conta que pertence ao programa, assim como o nome do _feed_ desejado, através da flag `--feed` (opcional; caso não seja passado, o cliente utilizará, por padrão, o endereço do _feed SOL/USD_ da _Devnet_). No exemplo, é especificado o nome do _feed ETH/USD_:
 
 ```
-node client.js --program $(solana address -k ./target/deploy/chainlink_solana_demo-keypair.json) --feed 	2ypeVyYnZaW2TNYXXTaZq9YhYvnqcjCiifW1C6n8b7Go
+node client.js --program $(solana address -k ./target/deploy/solana-keypair.json) --feed ETH/USD
 ```
 
-The client will generate a new account and pass it to the deployed program, which will then populate the account with the current price from the specified price feed. The client will then read the price from the account, and output the value to the console.
+O cliente, então, vai gerar uma nova conta e passar ao programa lançado, que, por sua vez, vai popular a conta criada com o preço atual do _feed_ especificado. O cliente vai ler o preço armazenado na conta e a saída resultante será impressa no console: 
 
 ```
 Running client...
@@ -143,28 +143,6 @@ Fetching transaction logs...
   'Program return: BrEqc6zHVR77jrP6U6WZLUV24AZ9UnHrWfDQTDV7VoDY CA==',
   'Program BrEqc6zHVR77jrP6U6WZLUV24AZ9UnHrWfDQTDV7VoDY success'
 ]
-Price Is: 2997
+Price of ETH/USD Is: 2997
 Success
-```
-
-### Testing
-
-You can execute the [integration test](./tests/solana.ts) with the following command
-
-```bash
-anchor test
-```
-
-The integration test checks that the value of the specified price feed account (defaulted to SOL/USD) on Devnet is greater than 0.
-
-```bash
- solana
-
-Price Is: 105.52
-    ✔ Query SOL/USD Price Feed! (4521ms)
-
-
-  1 passing (5s)
-
-✨  Done in 10.49s.
 ```

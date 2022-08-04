@@ -1,10 +1,11 @@
 // Retrieving feeds data
-const data = require('./feeds.json');
+const data = require('./data/feeds.json');
 
 // Parse arguments
 // --program - [Required] The account address for your deployed program.
 // --feed - The account address for the Chainlink data feed to retrieve
 const args = require('minimist')(process.argv.slice(2));
+console.log(args);
 
 // Initialize Anchor and provider
 const anchor = require("@project-serum/anchor");
@@ -17,9 +18,9 @@ const DIVISOR = 100000000;
 
 // Data feed account address
 // Default is SOL / USD
-const DEFAULT_FEED = "HgTtcbcmp5BeThax5AU8vg4VwK79qAvAKKFMs8txMLW6";
-const FEED_HASH = data.feeds[args['feed']];
-const CHAINLINK_FEED = FEED_HASH || DEFAULT_FEED;
+const DEFAULT_FEED = "SOL/USD";
+const FEED_HASH = data.feeds[args['feed'] || DEFAULT_FEED];
+const CHAINLINK_FEED = FEED_HASH;
 
 const opts = {
   "commitment": "confirmed"
@@ -67,8 +68,8 @@ async function main() {
 
   // Fetch the account details of the account containing the price data
   const latestPrice = await program.account.decimal.fetch(priceFeedAccount.publicKey);
-  const price = latestPrice.value / DIVISOR
-  console.log(`Price of ${CHAINLINK_FEED} Is:  ${price}`)
+  const price = latestPrice.value / DIVISOR;
+  console.log(`Price of ${args['feed'] || DEFAULT_FEED} Is:  ${price}`);
 }
 
 console.log("Running client...");
