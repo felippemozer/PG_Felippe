@@ -6,12 +6,26 @@ Chainlink Solana Data Feeds é um programa para realizar a verificação de pre�
 
 ### Requerimentos
 
-- [NodeJS 12](https://nodejs.org/en/download/) ou superior
+- [NodeJS LTS](https://nodejs.org/en/download/)
 - [Rust](https://www.rust-lang.org/tools/install)
 - [Solana CLI](https://github.com/solana-labs/solana/releases)
-- Um compilador C, como [GCC](https://gcc.gnu.org/install/), por exemplo.
+- [Anchor Framework v0.24.2](https://www.anchor-lang.com/docs/installation)
 
-**OBS**: Todos os testes foram realizados em ambiente Linux (Ubuntu 22.04, Xubuntu 20.04). Não há garantias de funcionamento do programa em outros sistemas operacionais.
+**OBS**: Todos os testes foram realizados em ambiente Linux (Ubuntu 20.04, Xubuntu 20.04). Não há garantias de funcionamento do programa em outros sistemas operacionais.
+
+---
+
+### Pré-configurando Solana
+
+É possível realizar a pré-configuração da Solana para facilitar as chamadas de comando que serão executadas abaixo, através dos comandos `solana config get` para verificar a configuração atual e `solana config set` para alterar a configuração atual para a desejada. Como utilizaremos a _Devnet_ para os testes, podemos alterar a configuração previamente através do comando:
+
+```
+solana config set --url devnet
+```
+
+**OBS**: Essa pré-configuração é opcional. É recomendado realizá-la para facilitar as chamadas de comando utilizadas pela Solana. Caso prefira manter a configuração padrão, os comandos completos serão apresentados juntamente aos comandos resumidos.
+
+---
 
 ### Fazendo o Build e Deploy do Contrato
 
@@ -20,7 +34,6 @@ Primeiro, garanta que está no diretório `solana` neste repositório. Caso cont
 ```
 cd solana
 ```
----
 
 Depois, instale as dependências necessárias através do comando:
 
@@ -35,7 +48,7 @@ Após a instalação das dependências, crie uma nova carteira (se desejado) par
 solana-keygen new -o id.json
 ```
 
-Se quiser utilizar uma chave já armazenada, utilize este comando:
+Se quiser utilizar uma chave já armazenada na configuração atual da Solana, utilize este comando:
 
 ```
 touch id.json
@@ -49,15 +62,29 @@ Para checar se a chave pública foi armazenada corretamente no arquivo `id.json`
 ```
 solana-keygen pubkey id.json
 ```
----
 
-O próximo passo é adicionar tokens SOL na conta. Como a rede _Devnet_ é limitada em até 2 SOL de adição por pedido de _airdrop_, vamos adicionar 4 SOL como garantia que teremos SOL suficiente para realizar as operações necessárias (ou seja, realizar 2 _airdrops_). Isso será realizado através do comando:
+Se preferir alterar a configuração atual da sua carteira para a carteira utilizada no programa (de modo a facilitar a execução dos comandos abaixo), utilize o seguinte comando:
 
 ```
-solana airdrop 2 $(solana-keygen pubkey ./id.json) --url https://api.devnet.solana.com && solana airdrop 2 $(solana-keygen pubkey ./id.json) --url https://api.devnet.solana.com
+solana config set --keypair ./id.json
 ```
 
-Se necessário, realize mais _airdrops_ para realizar uma bateria de testes. Para um _build_ e _deploy_, até 4 SOL serão suficientes.
+O próximo passo é adicionar tokens SOL na conta. Isso será realizado através do comando:
+
+```
+solana airdrop 2
+```
+
+Se necessário, realize mais chamadas de _airdrop_ para obter mais SOL.
+
+**OBS**: Caso esteja utilizando a configuração padrão da Solana (`--url mainnet` e `--keypair /home/<USERNAME>/.config/solana/id.json`), o comando a ser utilizado será:
+
+```
+solana airdrop 2 $(solana-keygen pubkey ./id/json) --url https://api.devnet.solana.com
+```
+
+Dessa forma, é **extremamente recomendado** realizar a pré-configuração do ambiente de desenvolvimento.
+
 
 ---
 
@@ -79,11 +106,18 @@ Agora é necessário editar o arquivo `lib.rs` e trocar a chave declarada na def
 declare_id!("<CHAVE_DO_PASSO_ANTERIOR>");
 ```
 
+Da mesma forma, será necessário alterar com essa mesma chave o valor da variável `solana` no arquivo `Anchor.toml`:
+
+```
+[programs.devnet]
+solana = "<CHAVE_DO_PASSO_ANTERIOR>"
+```
+
 Como o código fonte foi atualizado com o novo ID do contrato gerado, você precisa realizar _build_ do contrato novamente, e posteriormente é possível realizar o _deploy_ na _Devnet_:
 
 ```
 anchor build
-anchor deploy --provider.cluster devnet
+anchor deploy
 ```
 
 Uma vez que o _deploy_ do contrato ocorreu com sucesso, a saída do terminal vai especificar o ID do programa, de modo que deve ser igual ao valor inserido no arquivo `lib.rs` e no arquivo `Anchor.toml`. Mais uma vez, anote este ID, uma vez que será necessário na chamada de execução do cliente:
@@ -92,17 +126,17 @@ Uma vez que o _deploy_ do contrato ocorreu com sucesso, a saída do terminal vai
 Deploying workspace: https://api.devnet.solana.com
 Upgrade authority: ./id.json
 Deploying program "solana"...
-Program path: ./target/deploy/solana.so...
+Program path: /home/<USERNAME>/<PATH_TO_TARGET_FOLDER>/target/deploy/solana.so...
 Program Id: <ID_DO_PROGRAMA>
 ```
 
 ### Executando o Cliente
 
-O primeiro passo é **setar** as variáveis de ambiente do _Anchor_. Elas são requeridas pelo _framework_ para determinar o provedor a ser usado e qual a carteira vai ser utilizada para interagir com o contrato lançado:
+O primeiro passo é gerar as variáveis de ambiente do _Anchor_. Elas são requeridas pelo _framework_ para determinar o provedor a ser usado e qual a carteira vai ser utilizada para interagir com o contrato lançado:
 
 ```
-export ANCHOR_PROVIDER_URL='https://api.devnet.solana.com'
-export ANCHOR_WALLET='./id.json'
+export ANCHOR_PROVIDER_URL="https://api.devnet.solana.com"
+export ANCHOR_WALLET="./id.json"
 ```
 
 Agora o cliente JS poderá ser executado. **IMPORTANTE** Não esquecer de passar o ID do contrato obtido nos passos anteriores para ser utilizado no cliente através da _flag_ `--program` apontando para o arquivo JSON contendo a chave da conta que pertence ao programa, assim como o nome do _feed_ desejado, através da flag `--feed` (opcional; caso não seja passado, o cliente utilizará, por padrão, o endereço do _feed SOL/USD_ da _Devnet_). No exemplo, é especificado o nome do _feed ETH/USD_:

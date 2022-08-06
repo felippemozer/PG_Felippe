@@ -5,7 +5,6 @@ const data = require('./data/feeds.json');
 // --program - [Required] The account address for your deployed program.
 // --feed - The account address for the Chainlink data feed to retrieve
 const args = require('minimist')(process.argv.slice(2));
-console.log(args);
 
 // Initialize Anchor and provider
 const anchor = require("@project-serum/anchor");
@@ -19,8 +18,7 @@ const DIVISOR = 100000000;
 // Data feed account address
 // Default is SOL / USD
 const DEFAULT_FEED = "SOL/USD";
-const FEED_HASH = data.feeds[args['feed'] || DEFAULT_FEED];
-const CHAINLINK_FEED = FEED_HASH;
+const CHAINLINK_FEED = data.feeds[args['feed'] || DEFAULT_FEED];
 
 const opts = {
   "commitment": "confirmed"
@@ -47,23 +45,16 @@ async function main() {
   console.log('user public key: ' + walletPubKey);
 
   // Execute the RPC.
-  let tx = await program.rpc.execute({
-    accounts: {
-      decimal: priceFeedAccount.publicKey,
-      user: provider.wallet.publicKey,
-      chainlinkFeed: CHAINLINK_FEED,
-      chainlinkProgram: CHAINLINK_PROGRAM_ID,
-      systemProgram: anchor.web3.SystemProgram.programId
-    },
-    options: { commitment: "confirmed" },
-    signers: [priceFeedAccount],
-  });
+  let execMethod = program.methods.execute().accounts({decimal: feedPubKey,
+    user: walletPubKey,
+    chainlinkFeed: CHAINLINK_FEED,
+    chainlinkProgram: CHAINLINK_PROGRAM_ID,
+    systemProgram: anchor.web3.SystemProgram.programId}).signers([priceFeedAccount]);
+  console.log(execMethod);
+  let tx = await execMethod.rpc({ 'commitment': 'confirmed' });
   console.log(tx);
-
-  console.log("Fetching transaction logs...");
-  let t = await provider.connection.getTransaction(tx, opts);
   
-  console.log(t.meta);
+  // console.log(t.meta);
   // #endregion main
 
   // Fetch the account details of the account containing the price data

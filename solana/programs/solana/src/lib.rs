@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use chainlink_solana as chainlink;
 
-declare_id!("HPC1h9pkWddFotTST2JXVvGvYctGyMf1sSCDFsfk8bKY");
+declare_id!("6upeJtET4dDMnqUv33DZDhHBRSH4S1tDBfYRPRUi45os");
 
 // Create struct Decimal as a `account` struct
 #[account]
@@ -39,7 +39,7 @@ impl std::fmt::Display for Decimal {
 #[program]
 pub mod solana {
     use super::*;
-    pub fn execute(ctx: Context<Execute>) -> ProgramResult  {
+    pub fn execute(ctx: Context<Execute>) -> Result<()>  {
         // Get the rounded feed value
         let round = chainlink::latest_round_data(
             ctx.accounts.chainlink_program.to_account_info(),
