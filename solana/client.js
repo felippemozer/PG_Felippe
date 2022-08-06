@@ -18,7 +18,8 @@ const DIVISOR = 100000000;
 // Data feed account address
 // Default is SOL / USD
 const DEFAULT_FEED = "SOL/USD";
-const CHAINLINK_FEED = data.feeds[args['feed'] || DEFAULT_FEED];
+const CHOSEN_FEED = args['feed'] || DEFAULT_FEED;
+const CHAINLINK_FEED = data.feeds[CHOSEN_FEED];
 
 const opts = {
   "commitment": "confirmed"
@@ -45,22 +46,30 @@ async function main() {
   console.log('user public key: ' + walletPubKey);
 
   // Execute the RPC.
-  let execMethod = program.methods.execute().accounts({decimal: feedPubKey,
-    user: walletPubKey,
-    chainlinkFeed: CHAINLINK_FEED,
-    chainlinkProgram: CHAINLINK_PROGRAM_ID,
-    systemProgram: anchor.web3.SystemProgram.programId}).signers([priceFeedAccount]);
-  console.log(execMethod);
+  let execMethod = program.methods
+    .execute()
+    .accounts(
+      {
+        decimal: feedPubKey,
+        user: walletPubKey,
+        chainlinkFeed: CHAINLINK_FEED,
+        chainlinkProgram: CHAINLINK_PROGRAM_ID,
+        systemProgram: anchor.web3.SystemProgram.programId
+      }
+    )
+    .signers([priceFeedAccount]);
   let tx = await execMethod.rpc({ 'commitment': 'confirmed' });
-  console.log(tx);
   
-  // console.log(t.meta);
-  // #endregion main
+  let t = await provider.connection.getTransaction(tx, opts);
+  // DIVISOR * 10 pois há um 0 a mais na saída dos balanços da transação
+  console.log(
+    ` \nPre-balance of user account: ${t.meta.preBalances[0] / (DIVISOR*10)} SOL,\nPost-balance of user account: ${t.meta.postBalances[0] / (DIVISOR*10)} SOL,\nFee: ${t.meta.fee / (DIVISOR*10)} SOL\n`
+  );
 
   // Fetch the account details of the account containing the price data
   const latestPrice = await program.account.decimal.fetch(priceFeedAccount.publicKey);
   const price = latestPrice.value / DIVISOR;
-  console.log(`Price of ${args['feed'] || DEFAULT_FEED} Is:  ${price}`);
+  console.log(`Price of ${CHOSEN_FEED} Is:  ${price}`);
 }
 
 console.log("Running client...");
