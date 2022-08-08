@@ -1,3 +1,4 @@
+const startTime = performance.now();
 // Retrieving feeds data
 const data = require('./data/feeds.json');
 
@@ -70,6 +71,8 @@ async function main() {
   const latestPrice = await program.account.decimal.fetch(priceFeedAccount.publicKey);
   const price = latestPrice.value / DIVISOR;
   console.log(`Price of ${CHOSEN_FEED} Is:  ${price}`);
+  const finishTime = performance.now();
+  console.log(`\nTime of execution: ${(finishTime - startTime)/1000} seconds\n`);
 }
 
 console.log("Running client...");
