@@ -1,3 +1,4 @@
+const startTime = performance.now();
 // Retrieving feeds data
 const data = require('./data/feeds.json');
 
@@ -64,12 +65,14 @@ async function main() {
   // DIVISOR * 10 pois há um 0 a mais na saída dos balanços da transação
   console.log(
     ` \nPre-balance of user account: ${t.meta.preBalances[0] / (DIVISOR*10)} SOL,\nPost-balance of user account: ${t.meta.postBalances[0] / (DIVISOR*10)} SOL,\nFee: ${t.meta.fee / (DIVISOR*10)} SOL\n`
-  );
-
-  // Fetch the account details of the account containing the price data
-  const latestPrice = await program.account.decimal.fetch(priceFeedAccount.publicKey);
-  const price = latestPrice.value / DIVISOR;
-  console.log(`Price of ${CHOSEN_FEED} Is:  ${price}`);
+    );
+    
+    // Fetch the account details of the account containing the price data
+    const latestPrice = await program.account.decimal.fetch(priceFeedAccount.publicKey);
+    const price = latestPrice.value / DIVISOR;
+    console.log(`Price of ${CHOSEN_FEED} Is:  ${price}`);
+    const endTime = performance.now();
+    console.log(`nTime of execution: ${(endTime-startTime)/1000} seconds\n`);
 }
 
 console.log("Running client...");

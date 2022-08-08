@@ -12,18 +12,10 @@ contract PriceConsumer {
 
     AggregatorV3Interface internal priceFeed;
 
-    /**
-     * @dev Price feed contract constructor
-     * @param address of desired feed value
-     */
     constructor(address feedAddress) {
         priceFeed = AggregatorV3Interface(feedAddress);
     }
 
-    /**
-     * @dev Returns the latest price and the description of feed
-     * @return feed latest price and description
-     */
     function getLatestPriceAndDescription() public view returns (int, string memory) {
         (
             uint80 roundID,
